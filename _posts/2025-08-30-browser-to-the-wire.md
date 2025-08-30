@@ -155,6 +155,7 @@ Now the encapsulation process takes place, the above was layer 7 application
     - ACK number(next byte we exepct from server)
     - Window size(how much free space is in our buffer, used by the server for flow control)
 
+
 3. Next its passed down to the IP layer, this layer handles the routing of data, fragmentation, reassembly etc, at this layer the tcp segment is again encapsulated into a IP packet and an IP header is added onto it which includes
     - Source IP(our private IP for now)
     - destination IP(servers public IPv4)
@@ -165,9 +166,21 @@ Now the encapsulation process takes place, the above was layer 7 application
     - TTL(used to stop routing loops, gets decremented at every hop, if hits 0 thr packet is dropped)
     - and more
 
+Before the network stack can add the next header(ethernet) it needs to know destination MAC address, it does this by  checking if the destination IP is in the local network or if it needs to be routed to the default gateway, it does this through an AND operation 
+   - the AND operation works by taking the destination IP and subnet mask of the network and comparing the result against the LANs network IP for example
+        - subnet mask = 255.255.255.0, destination IP = 47.58.29.50
+        - we then do 255.255.255.0 AND 47.58.29.50 = 47.58.29.0
+        - this does NOT match the network ip(192.168.1.0) so we know we must forward the request to the default gateway
+After it knows whether its remote or local or then uses ARP to find the MAC address of the next hop
+address resolution protocol is a layer 2 protocol used internally inside a LAN to map IPs to MACs
+   - First it checks its ARP table, this is an in memory table that stores the recently mapped IPs to MACs, each entry has a TTL(platform dependent, windows is 2 minutes) so it constanly has to be refreshed and updated(unless we create static entrys)
+   - if the MAC address is not found we then send a broadcast(destination mac: FF:FF:FF:FF:FF:FF) ARP message to the network asking "Who is 192.168.1.1"
+   - All devices on the network recevie this but all of them drop it apart from the host with the specifed IP, this device then replies back "192.168.1.1 is at aa:bb:cc:dd:ee:ff"
+   - the original sender recevies this and adds the entry into their ARP table for future use
+
 4. Next its passed down to the Data link layer, this layer handles the Hop-by-hop of data, basic corruption checks etc, here the IP packet is encapsulated into a ethernet frame and a etherner header is added whjch includes:
-    - source MAC
-    - Destination MAC
+    - source MAC(Our MAC address)
+    - Destination MAC(one we learned via ARP)
     - FCS(used for error detection,its a checksum that's calculated ober the etherner header + payload)
     - EtherType(specifys the encapsulated protocol, IPv4, IPv6, ARP etc)
     - VLAN ID(not always)
@@ -176,7 +189,25 @@ NOTE:
    if this was HTTP/3 using QUIC the transport layer would instead apply a UDP header, which is much simplier then a TCP header
 
 #Routing
+Now that our packet is fully constructed the network stack passes it to our NICs driver, if its a wireless driver it strips the ethernet header and adds a 802.11 header, it then encrypts the entire packet and forwards it to our gateway
+the gateway receives it and then does a series of steps, in order too route it to the next hop in the chain
 
+1. the router receives the packet
+2. it then validates the Ethernets FCS is correct, drops it if not
+3. it then checks to see if the destination MAC is its own MAC, broadcast MAC or a multicast MAC, drops if not
+4. de encapsulates the Ethernet header to access the IP header
+5. validates the IP header checksum, drops if incorrect as it cant be trusted
+6. the router then consults its routing table to know what to do next
+<details>
+      <summary>Routing table?</summary>
+       routing tables are an in memory(usually) mapping, it defines where data should be sent next using the IP and subnet, usually house hold routers will just have static routing tables but enterprise routers inside ISPs and other large networks have dynamic tables and use interior gateway protocols such as OSPF, EIGRIP, IS-IS to handle dynamicly updating them
+       routing tables usually conist of multiple entrys and each entry has stuff such as
+          - destination: IP address to match
+          - gateway: the next hop IP address to forward the data too, typically 0.0.0.0 means the destination is directly connected 
+          - subnet mask: defines the range of IP address covered by the route
+          - metric: a cost value used by routers to make decisions 
+          - interface: the physical/logical inteface to send the data out of
+</details>
 
 
 
