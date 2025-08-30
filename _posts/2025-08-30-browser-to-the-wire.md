@@ -1,4 +1,4 @@
-s---
+---
 layout: post
 title: "From the Browser To The Wire: What happens when you press enter"
 date: 2025-08-30
