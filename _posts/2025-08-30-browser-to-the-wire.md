@@ -110,3 +110,7 @@ Once the TCP connection is established, we need to set up a secure encrypted con
    - The server decrypts and verifies the client’s Finished message.
 
 At this point, the handshake is complete and the encrypted session is established.
+Note: 
+   In TLS 1.3, the key exchange is included in the ServerHello, and the exact key generation method depends on the chosen cipher suite and TLS version. Modern browsers almost always use ephemeral ECDH for key exchange.
+
+# Encapsulation
