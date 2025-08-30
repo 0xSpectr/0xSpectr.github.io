@@ -12,6 +12,14 @@ categories:
 this post will be going over the full networking process of entering a url, all the way from DNS resolution to low level routing details
 im using this post more as a way for me to consolidate all of the knowledge i have learned from my networking studies, so if anything is wrong or misinterpreted please let me know
 
+overview
+   - [DNS Process](#DNS PROCESS)
+   - [CDN Overview](#Content Delivery Network)
+   - [TCP Handshake](#TCP Handshake)
+   - [TLS Handshake](#TLS Handshake)
+   - [Encapsulation](#Encapsulation)
+   - [Routing](#Routing)
+
 
 # DNS PROCESS
 domain name resolution is a widely used protocol, its main goal is to convert human readable domain names like "facebook.com" into IP addresses
@@ -66,13 +74,16 @@ Now that we have the IP of the server(or edge server whatever) we can start comm
         - detecting duplicate/stale packets
      the way it works is thay if the sender has timestamps enabled they will include 2 values in the tcp option, TSval which is the current timestamp and TSecr which is 0 for now since its used to echo back the senders TSval 
 
-
-
 2. the server receives this SYN packet and if its open to communicate(if ports closed we get a RST, if firewall blocks we get no response) the server will send back a SYN-ACK tcp message, this message also includes other data such as
    - SACK perm: if the server also supports SACK they will include it in their response, this way both sides now agree to use SACK for packet loss/handeling
    - MSS: the server will also include their own MSS, the smallest MSS value between them is chosen, but do note that this isnt static, either side of the connection can indivudally update their own MSS if something like PMTUD or some other form of it runs and detects a smaller value
-   
-and other options depending on what options the client sent, the server also setups their own sequance numbers
+   - timestamp: if the server has timestamps enabled the SYN-ACK packet will also include a timestamp, TSval will be the timestamp of when the server replys and TSecr will echo the TSval the client sent in the SYN packet
+
+3. finally the client will send back a ACK packet, this final packet finalises the tcp handshake and the connection is now established 
+
+Do note that there are more tcp options such as fast open, window scaling etc i just didnt add them for brevity
+also not all these options are oresent in every handshake, but they are still very common and enabled on most machines
+during the process each side sets up their intial sequence numbers, sequence numbers are used by tcp for segment re ordering, packet loss detection, keeping track of data etc
 
 # TLS Handshake
 
