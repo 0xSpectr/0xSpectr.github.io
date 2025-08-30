@@ -44,3 +44,22 @@ our browser will now start the DNS process, which has 5 main steps
 Do Note that all of the above servers keep their own cache of recently converted domains and at each step it checks the cache first, most requests for big sites such as google.com, facebook.com etc will stop at the resolver, just didnt mention the cache at each server for brevity
 
 # Content Delivery Network
+Facebook and almost all large sites these days use a CDN so ill quickly explain it
+A content delivery network is a global network of distributed servers that cache commonly requested static(images, js, html etc) resources, this means that instead of connecting to a server in let’s say Japan we connect to the closest edge server near us that returns the the resource for us(if it doesn’t have the resource or it’s a non cachable resource the edge server reaches out to the origin server and pulls it) it does this through any cast routing, any cast routing is a routing method where multiple servers worldwide all broadcast the same IP address, then internet routing protocols such as BGP handle routing requests to the closest server(usually), because the closest server will have the least hops
+
+
+# TCP Handshake
+Now that we have the IP of the server(or edge server whatever) we can start communicating with it, but since most of the web uses TCP as its transport method we need to form a connection with it, this is what the tcp handshake handles its used to setup a reliable and steady connection with the server and make sure both sides are ready too send and receive data between each other, it has 3 main steps
+1. First we send a TCP packet with the SYN flag set, this message also includes other data such as
+   --------------------------------------------------------------------------
+   - MSS: the Maximum segment size defines the largest size in bytes the application data can be inside a single tcp segment, its calculated as MTU - tcp headers - ethernet header, which on most machines will result in a MSS of 1460, MSS was built specifaclly to help stop fragmentation at the IP, the MSS is stored in the OPTIONS field of the tcp packet and is a 4 byte value
+        - kind (1 byte): 2 → indicates Maximum Segment Size option
+        - Length (1 byte): 4 → total length of the option in bytes (always 4)
+        - MSS value (2 bytes): the actual maximum segment size in bytes
+   --------------------------------------------------------------------------
+   - SACK: if the intiater of the connection supports SACK they will include a SACK permitted message, SACK is an extension to TCP and allows for more robust packet loss detection and handling, imagine during communication if the receiver received segments 1 2 4 5 6, its missing segment 3 so it keeps replying back to the sender with ACK 3 until the sender relises, the sender must now retransmit segment 3, 4 and 5, which is inefficant, SACK solves this by allowing the recevier to specify exactly what segment was lost and which ones they recevied, meaning the sender only has to resend the lost one, the SACK negotiation is also stored in the TCP options
+   - Kind = 4 (SACK Permitted)
+   - Length = 2
+--------------------------------------------------------------------------
+   - 
+
