@@ -10,23 +10,25 @@ categories:
 
 # Intro
 this post will be going over the full networking process of entering a url, all the way from DNS resolution to low level routing details
-im using this post more as a way for me to consolodate all of the knowledge i have learned from my networking studies, so if anything is wrong or misinterpiated please let me know
+im using this post more as a way for me to consolidate all of the knowledge i have learned from my networking studies, so if anything is wrong or misinterpreted please let me know
 
 
 # DNS PROCESS
-domain name resolution is a widley used protocol, its main goal is to convert human readable domain names like "facebook.com" into IP addresses
+domain name resolution is a widely used protocol, its main goal is to convert human readable domain names like "facebook.com" into IP addresses
 this way instead of trying to remeber "23.24.25.36" we can simply remember "facebook.com"
 DNS runs over port 53/udp but can use TCP mainly for 
 - Zone transfer(copying records between dns servers)   
 - when the response is to large to fit into a single UDP packet
-- DNS over TLS(DoT), DNS over HTTPS(DoT)
+- DNS over TLS(DoT), DNS over HTTPS(DoH)
+
 
 DNS is also used for much more then just storing servers IPs its also stores other records such as
+- AAAA(stores IPv6 addresses)
 - DKIM(stores the public key, used to verify the sender is who they say they are)   
 - DMARC(tells the receiver what to do if there’s something wrong)   
 - SPF(lists the valid servers that can send emails)   
 - CNAMES(holds the name of another domain, used for forwarding)   
-- MX(holds the IP of the mail servers) 
+- MX(holds the host names of mailservers) 
 - PTR(used for reverse DNS lookups, stores the domain name instead of IP)
 
 First we enter Facebook.com into a url bar
@@ -45,7 +47,7 @@ Do Note that all of the above servers keep their own cache of recently converted
 
 # Content Delivery Network
 Facebook and almost all large sites these days use a CDN so ill quickly explain it
-A content delivery network is a global network of distributed servers that cache commonly requested static(images, js, html etc) resources, this means that instead of connecting to a server in let’s say Japan we connect to the closest edge server near us that returns the the resource for us(if it doesn’t have the resource or it’s a non cachable resource the edge server reaches out to the origin server and pulls it) it does this through any cast routing, any cast routing is a routing method where multiple servers worldwide all broadcast the same IP address, then internet routing protocols such as BGP handle routing requests to the closest server(usually), because the closest server will have the least hops
+A content delivery network is a global network of distributed servers that cache commonly requested static(images, js, html etc) resources, this means that instead of connecting to a server in let’s say Japan we connect to the closest edge server near us that returns the the resource for us(if it doesn’t have the resource or it’s a non cachable resource the edge server reaches out to the origin server and pulls it) it does this through any cast routing, any cast routing is a routing method where multiple servers worldwide all broadcast the same IP address, then internet routing protocols such as BGP handle routing requests to the closest server(usually), because the closest server will have the least hops, this also has the added bonus that users never directly interact with the origin server, giving us a little bit of security 
 
 
 # TCP Handshake
@@ -57,15 +59,17 @@ Now that we have the IP of the server(or edge server whatever) we can start comm
         - MSS value (2 bytes): the actual maximum segment size in bytes
 
    - SACK: if the intiater of the connection supports SACK they will include a SACK permitted message, SACK is an extension to TCP and allows for more robust packet loss detection and handling, imagine during communication if the receiver received segments 1 2 4 5 6, its missing segment 3 so it keeps replying back to the sender with ACK 3 until the sender relises, the sender must now retransmit segment 3, 4 and 5, which is inefficant, SACK solves this by allowing the recevier to specify exactly what segment was lost and which ones they recevied, meaning the sender only has to resend the lost one, the SACK negotiation is also stored in the TCP options
-   - Kind = 4 (SACK Permitted)
-   - Length = 2
+        - Kind = 4 (SACK Permitted)
+        - Length = 2
+   - Timestamp: another very common tcp option that are seen in the TCP handshake are timestamps, timestamps serve multiple purposes such as
+        - RTT calculation, timestamps allow for milliseconds accurate RTT calculation as all packets inckude the timestamp of when it was sent, the receiver then can just do sender_timestamp - current_time = RTT
+        - detecting duplicate/stale packets
+     the way it works is thay if the sender has timestamps enabled they will include 2 values in the tcp option, TSval which is the current timestamp and TSecr which is 0 for now since its used to echo back the senders TSval 
 
-other options such as window scaling, timestamps, fast open exist but i wont go to in depth cause itll be to long
-the sender will also setup their sequance numbers, in TCP sequance numbers are used to keep track of sent and recevied messages
+
 
 2. the server receives this SYN packet and if its open to communicate(if ports closed we get a RST, if firewall blocks we get no response) the server will send back a SYN-ACK tcp message, this message also includes other data such as
    - SACK perm: if the server also supports SACK they will include it in their response, this way both sides now agree to use SACK for packet loss/handeling
-   
    - MSS: the server will also include their own MSS, the smallest MSS value between them is chosen, but do note that this isnt static, either side of the connection can indivudally update their own MSS if something like PMTUD or some other form of it runs and detects a smaller value
    
 and other options depending on what options the client sent, the server also setups their own sequance numbers
