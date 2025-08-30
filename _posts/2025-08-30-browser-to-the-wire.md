@@ -21,9 +21,9 @@ overview
    - [Routing](#routing)
 
 
-# DNS PROCESS
+# DNS Process
 domain name resolution is a widely used protocol, its main goal is to convert human readable domain names like "facebook.com" into IP addresses
-this way instead of trying to remeber "23.24.25.36" we can simply remember "facebook.com"
+this way instead of trying to remember "23.24.25.36" we can simply remember "facebook.com"
 DNS runs over port 53/udp but can use TCP mainly for 
 - Zone transfer(copying records between dns servers)   
 - when the response is to large to fit into a single UDP packet
@@ -66,25 +66,47 @@ Now that we have the IP of the server(or edge server whatever) we can start comm
         - Length (1 byte): 4 → total length of the option in bytes (always 4)
         - MSS value (2 bytes): the actual maximum segment size in bytes
 
-   - SACK: if the intiater of the connection supports SACK they will include a SACK permitted message, SACK is an extension to TCP and allows for more robust packet loss detection and handling, imagine during communication if the receiver received segments 1 2 4 5 6, its missing segment 3 so it keeps replying back to the sender with ACK 3 until the sender relises, the sender must now retransmit segment 3, 4 and 5, which is inefficant, SACK solves this by allowing the recevier to specify exactly what segment was lost and which ones they recevied, meaning the sender only has to resend the lost one, the SACK negotiation is also stored in the TCP options
+   - SACK: if the initiator of the connection supports SACK they will include a SACK permitted message, SACK is an extension to TCP and allows for more robust packet loss detection and handling, imagine during communication if the receiver received segments 1 2 4 5 6, its missing segment 3 so it keeps replying back to the sender with ACK 3 until the sender relises, the sender must now retransmit segment 3, 4 and 5, which is inefficient, SACK solves this by allowing the receiver to specify exactly what segment was lost and which ones they recevied, meaning the sender only has to resend the lost one, the SACK negotiation is also stored in the TCP options
         - Kind = 4 (SACK Permitted)
         - Length = 2
-   - Timestamp: another very common tcp option that are seen in the TCP handshake are timestamps, timestamps serve multiple purposes such as
-        - RTT calculation, timestamps allow for milliseconds accurate RTT calculation as all packets inckude the timestamp of when it was sent, the receiver then can just do sender_timestamp - current_time = RTT
+   - Timestamp: another very common tcp option that is seen in the TCP handshake are timestamps, timestamps serve multiple purposes such as
+        - RTT calculation, timestamps allow for milliseconds accurate RTT calculation as all packets include the timestamp of when it was sent, the receiver then can just do TSecr_echoed - current_time = RTT
         - detecting duplicate/stale packets
-     the way it works is thay if the sender has timestamps enabled they will include 2 values in the tcp option, TSval which is the current timestamp and TSecr which is 0 for now since its used to echo back the senders TSval 
+     the way it works is that if the sender has timestamps enabled they will include 2 values in the tcp option, TSval which is the current timestamp and TSecr which is 0 for now since its used to echo back the senders TSval 
 
-2. the server receives this SYN packet and if its open to communicate(if ports closed we get a RST, if firewall blocks we get no response) the server will send back a SYN-ACK tcp message, this message also includes other data such as
-   - SACK perm: if the server also supports SACK they will include it in their response, this way both sides now agree to use SACK for packet loss/handeling
-   - MSS: the server will also include their own MSS, the smallest MSS value between them is chosen, but do note that this isnt static, either side of the connection can indivudally update their own MSS if something like PMTUD or some other form of it runs and detects a smaller value
+2. the server receives this SYN packet and if its open to communicate the server will send back a SYN-ACK tcp message, this message also includes other data such as
+   - SACK perm: if the server also supports SACK they will include it in their response, this way both sides now agree to use SACK for packet loss/handling
+   - MSS: the server will also include their own MSS, the smallest MSS value between them is chosen, but do note that this isnt static, either side of the connection can individually update their own MSS if something like PMTUD or some other form of it runs and detects a smaller value
    - timestamp: if the server has timestamps enabled the SYN-ACK packet will also include a timestamp, TSval will be the timestamp of when the server replys and TSecr will echo the TSval the client sent in the SYN packet
 
 3. finally the client will send back a ACK packet, this final packet finalises the tcp handshake and the connection is now established 
 
-Do note that there are more tcp options such as fast open, window scaling etc i just didnt add them for brevity
-also not all these options are oresent in every handshake, but they are still very common and enabled on most machines
+Do note that there are more tcp options such as fast open, window scaling etc i just didn't add them for brevity
+also not all these options are present in every handshake, but they are still very common and enabled on most machines
 during the process each side sets up their intial sequence numbers, sequence numbers are used by tcp for segment re ordering, packet loss detection, keeping track of data etc
 
 # TLS Handshake
+Once the TCP connection is established, we need to set up a secure encrypted connection using HTTPS. This is done via the TLS handshake:
 
+1. Client Hello: The client sends a message including:
+   - Supported cipher suites
+   - Supported TLS versions
+   - Client random (32-byte value used in key derivation)
+   - Other handshake parameters
 
+2. Server Hello: The server responds with:
+   - Server’s certificate (for authentication)
+   - Chosen cipher suite
+   - Chosen TLS version
+   - Server random
+
+3. Certificate validation & key generation:
+   - The client validates the server’s certificate. 
+   - Both client and server then generate ephemeral keys for key exchange (TLS 1.3 uses ECDHE; RSA is only used for certificate signatures).
+
+4. Finished messages:
+   - The server sends a **Finished** message containing a hash of all previous handshake messages, encrypted with the session key.
+   - The client decrypts and verifies it, then responds with its own **Finished** message.
+   - The server decrypts and verifies the client’s Finished message.
+
+At this point, the handshake is complete and the encrypted session is established.
