@@ -6,7 +6,7 @@ categories:
   - networking
   - cybersec
 ---
-
+<style> body { background: #1e1e1e; color: #e0e0e0; } </style>
 
 # Intro
 this post will be going over the full networking process of entering a url, all the way from DNS resolution to low level routing details
