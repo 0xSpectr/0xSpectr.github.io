@@ -125,11 +125,13 @@ HTTP uses methods to define the operaiton we would like to do to such as:
    - POST: upload a resource(such as files)
    - PUT: update a resource(such as usrr detsils)
    - DELETE: delete a resource
+
 for us we would like to request a resource so we senda GET request, http also uses headers which allow us to send other details to the server some common ones are
    - User-Agent: a string thay identifies our device type, such as a mobile phone, desktop etc, it also includes whag browser we are using, the version and more
    - Accept: defines the type of data we will accept, such as html, css etc
    - Cookie: a small string that allows the server to identify us across requests, because HTTP is stateless cookies allow the server to remember us, they are automatically included in requests by the browser(depening on the cookies settings and requests origin) and is what allows us to login once then return later and stay logged in
    - Host: specfies the domain name of the server, required in 1.1 requests
+
 so for examples our request to facebook.com will look like
    GET / 1.1
    Host: facebook.com
@@ -143,7 +145,6 @@ i will be using the OSI model for this explanation so i can explain each layer m
 Now the encapsulation process takes place, the above was layer 7 application
 
 1. Next it gets passed down to layer 6 presentation, this layer handles the presentation of the data, stuff such as encoding, compression and encryption etc, here any dangerous characters in the url get to encoded according the url encoding spec, and then the GET requests is encrypted with session  using the key that was created during the TLS handshake
-<skipping session layer since its just not important in the modern web>.   
 
 2. Next its passed down the transport layer, this layer handles the end to end communication of data, re ordering, segmentation, packet loss detection etc, here the data is encapsulated into a segment and a TCP header is added this includes;
     - Source port
