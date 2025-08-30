@@ -17,7 +17,7 @@ overview
    - [CDN Overview](#content-delivery-network)
    - [TCP Handshake](#tcp-handshake)
    - [TLS Handshake](#tls-handshake)
-   - [Encapsulation](#encapsulation)
+   - [HTTP & Encapsulation](#http-&-encapsulation)
    - [Routing](#routing)
 
 
@@ -113,4 +113,69 @@ At this point, the handshake is complete and the encrypted session is establishe
 Note: 
    In TLS 1.3, the key exchange is included in the ServerHello, and the exact key generation method depends on the chosen cipher suite and TLS version. Modern browsers almost always use ephemeral ECDH for key exchange.
 
-# Encapsulation
+# HTTP & Encapsulation
+NOTE:
+   HTTP/3 uses QUIC, a modern transport protocol built on top of UDP instead of TCP like previous HTTP versions, QUIC provides the reliability and congestion control of TCP but without its overhead. It also includes built-in TLS, supports 0-RTT handshakes, enables better multiplexing through individual streams, and solves the head-of-line blocking issue that TCP can face.
+   For simplicity, this blog focuses on HTTP/1.1–2, which uses TCP as its transport method.
+   If you would like to read more about [QUIC](https://www.auvik.com/franklyit/blog/what-is-quic-protocol/)
+
+Now that the secure TLS connection is established, our browser can finally request resources from the server using HTTP (Hypertext Transfer Protocol). HTTP is a Layer 7 application protocol that powers the web. It allows us to request files, submit forms, manage sessions, and interact with web applications.
+HTTP uses methods to define the operaiton we would like to do to such as:
+   - GET: request a resource
+   - POST: upload a resource(such as files)
+   - PUT: update a resource(such as usrr detsils)
+   - DELETE: delete a resource
+for us we would like to request a resource so we senda GET request, http also uses headers which allow us to send other details to the server some common ones are
+   - User-Agent: a string thay identifies our device type, such as a mobile phone, desktop etc, it also includes whag browser we are using, the version and more
+   - Accept: defines the type of data we will accept, such as html, css etc
+   - Cookie: a small string that allows the server to identify us across requests, because HTTP is stateless cookies allow the server to remember us, they are automatically included in requests by the browser(depening on the cookies settings and requests origin) and is what allows us to login once then return later and stay logged in
+   - Host: specfies the domain name of the server, required in 1.1 requests
+so for examples our request to facebook.com will look like
+   GET / 1.1
+   Host: facebook.com
+   User-Agent: <whatever>
+   Accept: text/html, image/jpeg
+   cookie: <whatever>
+
+Now our browser constructs the GET requests and the encapsulation process happens now
+i will be using the OSI model for this explanation so i can explain each layer more in depth, but the modern intetnet uses the TCP/IP model which merges layers 7,6 and 5 into a single layer
+
+Now the encapsulation process takes place, the above was layer 7 application
+
+1. Next it gets passed down to layer 6 presentation, this layer handles the presentation of the data, stuff such as encoding, compression and encryption etc, here any dangerous characters in the url get to encoded according the url encoding spec, and then the GET requests is encrypted with session  using the key that was created during the TLS handshake
+<skipping session layer since its just not important in the modern web>
+2. Next its passed down the transport layer, this layer handles the end to end communication of data, re ordering, segmentation, packet loss detection etc, here the data is encapsulated into a segment and a TCP header is added this includes;
+    - Source port
+    - Destination port
+    - checksum(used for corrupt/tampered segment detection)
+    - TCP flags if any(psh, urg etc)
+    - sequence number
+    - ACK number(next byte we exepct from server)
+    - Window size(how much free space is in our buffer, used by the server for flow control)
+
+3. Next its passed down to the IP layer, this layer handles the routing of data, fragmentation, reassembly etc, at this layer the tcp segment is again encapsulated into a IP packet and an IP header is added onto it which includes
+    - Source IP(our private IP for now)
+    - destination IP(servers public IPv4)
+    - checksum(same as above)
+    - need fragmentation flag(only needed if total size of packet is larger then systems MTU, usually avoided at all costs)
+    - version(IP version)
+    - protocol(protocol in use, TCP for us)
+    - TTL(used to stop routing loops, gets decremented at every hop, if hits 0 thr packet is dropped)
+    - and more
+
+4. Next its passed down to the Data link layer, this layer handles the Hop-by-hop of data, basic corruption checks etc, here the IP packet is encapsulated into a ethernet frame and a etherner header is added whjch includes:
+    - source MAC
+    - Destination MAC
+    - FCS(used for error detection,its a checksum that's calculated ober the etherner header + payload)
+    - EtherType(specifys the encapsulated protocol, IPv4, IPv6, ARP etc)
+    - VLAN ID(not always)
+
+NOTE:
+   if this was HTTP/3 using QUIC the transport layer would instead apply a UDP header, which is much simplier then a TCP header
+
+#Routing
+
+
+
+
+
