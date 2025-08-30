@@ -133,11 +133,14 @@ for us we would like to request a resource so we senda GET request, http also us
    - Host: specfies the domain name of the server, required in 1.1 requests
 
 so for examples our request to facebook.com will look like
-   GET / 1.1
-   Host: facebook.com
-   User-Agent: <whatever>
-   Accept: text/html, image/jpeg
-   cookie: <whatever>
+   
+```
+GET /index.html HTTP/1.1
+Host: facebook.com
+User-Agent: <whatever>
+Accept: text/html, image/jpeg
+cookie: <whatever>
+```
 
 Now our browser constructs the GET requests and the encapsulation process happens now
 i will be using the OSI model for this explanation so i can explain each layer more in depth, but the modern intetnet uses the TCP/IP model which merges layers 7,6 and 5 into a single layer
@@ -171,8 +174,9 @@ Before the network stack can add the next header(ethernet) it needs to know dest
         - subnet mask = 255.255.255.0, destination IP = 47.58.29.50
         - we then do 255.255.255.0 AND 47.58.29.50 = 47.58.29.0
         - this does NOT match the network ip(192.168.1.0) so we know we must forward the request to the default gateway
-After it knows whether its remote or local or then uses ARP to find the MAC address of the next hop
-address resolution protocol is a layer 2 protocol used internally inside a LAN to map IPs to MACs
+
+After it knows whether its remote or local our system then uses ARP to find the MAC address of the next hop
+Address resolution protocol is a layer 2 protocol used internally inside a LAN to map IPs to MACs, its specifically for IPv4 as IPv6 uses neighbourhood discovery protocol.  
    - First it checks its ARP table, this is an in memory table that stores the recently mapped IPs to MACs, each entry has a TTL(platform dependent, windows is 2 minutes) so it constanly has to be refreshed and updated(unless we create static entrys)
    - if the MAC address is not found we then send a broadcast(destination mac: FF:FF:FF:FF:FF:FF) ARP message to the network asking "Who is 192.168.1.1"
    - All devices on the network recevie this but all of them drop it apart from the host with the specifed IP, this device then replies back "192.168.1.1 is at aa:bb:cc:dd:ee:ff"
