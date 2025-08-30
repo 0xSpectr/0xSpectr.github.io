@@ -188,7 +188,7 @@ address resolution protocol is a layer 2 protocol used internally inside a LAN t
 NOTE:
    if this was HTTP/3 using QUIC the transport layer would instead apply a UDP header, which is much simplier then a TCP header
 
-#Routing
+# Routing
 Now that our packet is fully constructed the network stack passes it to our NICs driver, if its a wireless driver it strips the ethernet header and adds a 802.11 header, it then encrypts the entire packet and forwards it to our gateway
 the gateway receives it and then does a series of steps, in order too route it to the next hop in the chain
 
@@ -200,14 +200,14 @@ the gateway receives it and then does a series of steps, in order too route it t
 6. the router then consults its routing table to know what to do next
 <details>
       <summary>Routing table?</summary>
-       routing tables are an in memory(usually) mapping, it defines where data should be sent next using the IP and subnet, usually house hold routers will just have static routing tables but enterprise routers inside ISPs and other large networks have dynamic tables and use interior gateway protocols such as OSPF, EIGRIP, IS-IS to handle dynamicly updating them
-       routing tables usually conist of multiple entrys and each entry has stuff such as
-          - destination: IP address to match
-          - gateway: the next hop IP address to forward the data too, typically 0.0.0.0 means the destination is directly connected 
-          - subnet mask: defines the range of IP address covered by the route
-          - metric: a cost value used by routers to make decisions 
-          - interface: the physical/logical inteface to send the data out of
-</details>
+       routing tables are an in memory(usually) mapping, it defines where data should be sent next using the IP and subnet, usually house hold routers will just have static routing tables but enterprise routers inside ISPs and other large networks have dynamic tables and use interior gateway protocols such as OSPF, EIGRIP, IS-IS to handle dynamicly updating them.   
+       routing tables usually conist of multiple entrys and each entry has stuff such as.   
+          - destination: IP address to match.   
+          - gateway: the next hop IP address to forward the data too, typically 0.0.0.0 means the destination is directly connected     
+          - subnet mask: defines the range of IP address covered by the route.   
+          - metric: a cost value used by routers to make decisions     
+          - interface: the physical/logical inteface to send the data out of.   
+</details>.   
 
 
 
