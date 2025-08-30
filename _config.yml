@@ -1,2 +1,4 @@
 title: Cybersec blog
 theme: minima
+plugins:
+  - jekyll-feed
