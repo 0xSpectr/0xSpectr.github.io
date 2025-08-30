@@ -143,7 +143,8 @@ i will be using the OSI model for this explanation so i can explain each layer m
 Now the encapsulation process takes place, the above was layer 7 application
 
 1. Next it gets passed down to layer 6 presentation, this layer handles the presentation of the data, stuff such as encoding, compression and encryption etc, here any dangerous characters in the url get to encoded according the url encoding spec, and then the GET requests is encrypted with session  using the key that was created during the TLS handshake
-<skipping session layer since its just not important in the modern web>
+<skipping session layer since its just not important in the modern web>.   
+
 2. Next its passed down the transport layer, this layer handles the end to end communication of data, re ordering, segmentation, packet loss detection etc, here the data is encapsulated into a segment and a TCP header is added this includes;
     - Source port
     - Destination port
