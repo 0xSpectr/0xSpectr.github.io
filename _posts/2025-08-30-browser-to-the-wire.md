@@ -1,4 +1,4 @@
----
+s---
 layout: post
 title: "From the Browser To The Wire: What happens when you press enter"
 date: 2025-08-30
@@ -13,12 +13,12 @@ this post will be going over the full networking process of entering a url, all 
 im using this post more as a way for me to consolidate all of the knowledge i have learned from my networking studies, so if anything is wrong or misinterpreted please let me know
 
 overview
-   - [DNS Process](#DNS PROCESS)
-   - [CDN Overview](#Content Delivery Network)
-   - [TCP Handshake](#TCP Handshake)
-   - [TLS Handshake](#TLS Handshake)
-   - [Encapsulation](#Encapsulation)
-   - [Routing](#Routing)
+   - [DNS Process](#dns-process)
+   - [CDN Overview](#content-delivery-network)
+   - [TCP Handshake](#tcp-handshake)
+   - [TLS Handshake](#tls-handshake)
+   - [Encapsulation](#encapsulation)
+   - [Routing](#routing)
 
 
 # DNS PROCESS
