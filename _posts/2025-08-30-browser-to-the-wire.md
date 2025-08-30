@@ -9,8 +9,8 @@ categories:
 
 
 # Intro
-this post will be going over the full process of entering a url, all the way from DNS resolution to low level routing details
-this post is being used more as a way for me to consolodate all of the knowledge i have learned from my networking studies, so if anything is wrong or misinterpiated please let me know
+this post will be going over the full networking process of entering a url, all the way from DNS resolution to low level routing details
+im using this post more as a way for me to consolodate all of the knowledge i have learned from my networking studies, so if anything is wrong or misinterpiated please let me know
 
 
 # DNS PROCESS
@@ -51,15 +51,25 @@ A content delivery network is a global network of distributed servers that cache
 # TCP Handshake
 Now that we have the IP of the server(or edge server whatever) we can start communicating with it, but since most of the web uses TCP as its transport method we need to form a connection with it, this is what the tcp handshake handles its used to setup a reliable and steady connection with the server and make sure both sides are ready too send and receive data between each other, it has 3 main steps
 1. First we send a TCP packet with the SYN flag set, this message also includes other data such as
-   --------------------------------------------------------------------------
-   - MSS: the Maximum segment size defines the largest size in bytes the application data can be inside a single tcp segment, its calculated as MTU - tcp headers - ethernet header, which on most machines will result in a MSS of 1460, MSS was built specifaclly to help stop fragmentation at the IP, the MSS is stored in the OPTIONS field of the tcp packet and is a 4 byte value
+   - MSS: the Maximum segment size defines the largest size in bytes the application data can be inside a single tcp segment, its calculated as MTU - tcp headers - IP headers, which on most machines will result in a MSS of 1460, MSS was built specifaclly to help stop fragmentation at the IP, the MSS is stored in the OPTIONS field of the tcp packet and is a 4 byte value
         - kind (1 byte): 2 → indicates Maximum Segment Size option
         - Length (1 byte): 4 → total length of the option in bytes (always 4)
         - MSS value (2 bytes): the actual maximum segment size in bytes
-   --------------------------------------------------------------------------
+===============================================================
    - SACK: if the intiater of the connection supports SACK they will include a SACK permitted message, SACK is an extension to TCP and allows for more robust packet loss detection and handling, imagine during communication if the receiver received segments 1 2 4 5 6, its missing segment 3 so it keeps replying back to the sender with ACK 3 until the sender relises, the sender must now retransmit segment 3, 4 and 5, which is inefficant, SACK solves this by allowing the recevier to specify exactly what segment was lost and which ones they recevied, meaning the sender only has to resend the lost one, the SACK negotiation is also stored in the TCP options
    - Kind = 4 (SACK Permitted)
    - Length = 2
---------------------------------------------------------------------------
-   - 
+===============================================================
+other options such as window scaling, timestamps, fast open exist but i wont go to in depth cause itll be to long
+the sender will also setup their sequance numbers, in TCP sequance numbers are used to keep track of sent and recevied messages
+
+2. the server receives this SYN packet and if its open to communicate(if ports closed we get a RST, if firewall blocks we get no response) the server will send back a SYN-ACK tcp message, this message also includes other data such as
+   - SACK perm: if the server also supports SACK they will include it in their response, this way both sides now agree to use SACK for packet loss/handeling
+   ===============================================================
+   - MSS: the server will also include their own MSS, the smallest MSS value between them is chosen, but do note that this isnt static, either side of the connection can indivudally update their own MSS if something like PMTUD or some other form of it runs and detects a smaller value
+   ===============================================================
+and other options depending on what options the client sent, the server also setups their own sequance numbers
+
+# TLS Handshake
+
 
