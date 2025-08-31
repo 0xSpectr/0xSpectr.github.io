@@ -115,7 +115,7 @@ Note:
 
 # HTTP & Encapsulation
 NOTE:
-   HTTP/3 uses QUIC, a modern transport protocol built on top of UDP instead of TCP like previous HTTP versions, QUIC provides the reliability and congestion control of TCP but without its overhead. It also includes built-in TLS, supports 0-RTT handshakes, enables better multiplexing through individual streams, and solves the head-of-line blocking issue that TCP can face.
+   HTTP/3 uses QUIC, a modern transport protocol built on top of UDP instead of TCP like previous HTTP versions, QUIC provides the reliability and congestion control of TCP but without some of the overhead. It also includes built-in TLS, supports 0-RTT handshakes, enables better multiplexing through individual streams, and solves the head-of-line blocking issue that TCP can face.
    For simplicity, this blog focuses on HTTP/1.1–2, which uses TCP as its transport method.
    If you would like to read more about [QUIC](https://www.auvik.com/franklyit/blog/what-is-quic-protocol/)
 
@@ -143,7 +143,7 @@ cookie: <whatever>
 ```
 
 Now our browser constructs the GET requests and the encapsulation process happens now
-i will be using the OSI model for this explanation so i can explain each layer more in depth, but the modern intetnet uses the TCP/IP model which merges layers 7,6 and 5 into a single layer
+i will be using the OSI model for this explanation so i can explain each layer more in depth, but the modern internet uses the TCP/IP model which merges layers 7,6 and 5 into a single layer
 
 Now the encapsulation process takes place, the above was layer 7 application
 
@@ -193,6 +193,8 @@ NOTE:
    if this was HTTP/3 using QUIC the transport layer would instead apply a UDP header, which is much simplier then a TCP header
 
 # Routing
+NOTE:
+    the flow below assumes this router is the internet gateway and is NAT enabled, but do note that a devices default gateway isnt always a router, its common in large networks for each vlans default gateway to be a L3 Switch or another L3 device
 Now that our packet is fully constructed the network stack passes it to our NICs driver, if its a wireless driver it strips the ethernet header and adds a 802.11 header, it then encrypts the entire packet and forwards it to our gateway
 the gateway receives it and then does a series of steps, in order too route it to the next hop in the chain
 
@@ -202,7 +204,6 @@ the gateway receives it and then does a series of steps, in order too route it t
 4. de encapsulates the Ethernet header to access the IP header
 5. validates the IP header checksum, drops if incorrect as it cant be trusted
 6. the router then consults its routing table to know what to do next
-
 <details>
 <summary>Routing table?</summary>
 <p>
@@ -216,6 +217,7 @@ routing tables are an in memory(usually) mapping, it defines where data should b
 <li>interface: the physical/logical interface to send the data out of</li>
 </ul>
 </details>
+7. Next the router
 
 
 
