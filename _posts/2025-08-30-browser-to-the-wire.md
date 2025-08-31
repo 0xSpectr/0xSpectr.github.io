@@ -202,20 +202,20 @@ the gateway receives it and then does a series of steps, in order too route it t
 4. de encapsulates the Ethernet header to access the IP header
 5. validates the IP header checksum, drops if incorrect as it cant be trusted
 6. the router then consults its routing table to know what to do next
+
 <details>
 <summary>Routing table?</summary>
-      
-routing tables are an in memory(usually) mapping, it defines where data should be sent next using the IP and subnet, usually house hold routers will just have static routing tables but enterprise routers inside ISPs and other large networks have dynamic tables and use interior gateway protocols such as OSPF, EIGRP, IS-IS to handle dynamically updating them.   
-       
-routing tables usually consist of multiple entrys and each entry has stuff such as.   
-         
-- destination: IP address to match.   
-- gateway: the next hop IP address to forward the data too, typically 0.0.0.0 means the destination is directly connected     
-- subnet mask: defines the range of IP address covered by the route.   
-- metric: a cost value used by routers to make decisions     
-- interface: the physical/logical inteface to send the data out of.   
-</details>   
-
+<p>
+Routing tables are an in-memory (usually) mapping...
+</p>
+<ul>
+<li>destination: IP address to match.</li>
+<li>gateway: the next hop IP address...</li>
+<li>subnet mask: defines the range...</li>
+<li>metric: a cost value...</li>
+<li>interface: the physical/logical interface...</li>
+</ul>
+</details>
 
 
 
