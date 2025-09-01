@@ -55,7 +55,7 @@ Do Note that all of the above servers keep their own cache of recently converted
 
 # Content Delivery Network
 Facebook and almost all large sites these days use a CDN so ill quickly explain it
-A content delivery network is a global network of distributed servers that cache commonly requested static(images, js, html etc) resources, this means that instead of connecting to a server in let’s say Japan we connect to the closest edge server near us that returns the the resource for us(if it doesn’t have the resource or it’s a non cachable resource the edge server reaches out to the origin server and pulls it) it does this through any cast routing, any cast routing is a routing method where multiple servers worldwide all broadcast the same IP address, then internet routing protocols such as BGP handle routing requests to the closest server(usually), because the closest server will have the least hops, this also has the added bonus that users never directly interact with the origin server, giving us a little bit of security 
+A content delivery network is a global network of distributed servers that cache commonly requested static(images, js, html etc) resources, this means that instead of connecting to a server in let’s say Japan we connect to the closest edge server near us that returns the the resource for us(if it doesn’t have the resource or it’s a non-cachable resource the edge server reaches out to the origin server and pulls it. It does this through any cast routing, any cast routing is a routing method where multiple servers worldwide all broadcast the same IP address, then when the IP broadcast to the internet via BGP ISPs will automatically choose the closest server(closest in the sense of the least hops away not geographically closest but it usually is), this also has the added bonus that users never directly interact with the origin server, giving us a little bit of security 
 
 
 # TCP Handshake
@@ -111,7 +111,7 @@ Once the TCP connection is established, we need to set up a secure encrypted con
 
 At this point, the handshake is complete and the encrypted session is established.
 Note: 
-   In TLS 1.3, the key exchange is included in the ServerHello, and the exact key generation method depends on the chosen cipher suite and TLS version. Modern browsers almost always use ephemeral ECDH for key exchange.
+   In TLS 1.3, the key exchange is included in the ServerHello, and the exact key generation method depends on the chosen cipher suite and TLS version. Modern browsers almost always use ephemeral ECDH for key exchange. TLS 1.3 also supports 0 RTT handshakes if the client has previously connected
 
 # HTTP & Encapsulation
 NOTE:
@@ -217,7 +217,37 @@ routing tables are an in memory(usually) mapping, it defines where data should b
 <li>interface: the physical/logical interface to send the data out of</li>
 </ul>
 </details>
-7. Next the router
+the router will then use longest prefix routing, LPR is a method routers use to choose the more specific route incase multiple routes overlap with each other for example if we have
+route 1: 192.168.0.0/16
+route 2: 192.168.1.0/24
+the router will choose route 2 because its more specific, the reason for this.
+If there is no route that matchs it will use the default route(0.0.0.0 - matchs all destination IPs), if there is no default route it drops the packet
+7. since this is a internet gateway and the data needs to be routed outside of the network NAT takes place, the router will update the source IP to be its public IPv4(and update the source port to something unique if PAT is in use) and create a mapping inside its NAT table, for example heres a mapping from my routers dashboard
 
+<details>
+<summary>NAT?</summary>
+<p>
+Network address translation is a method used to allow multiple devices inside a LAN which have unique non routable private IPv4 addresses to all share a single public IPv4 address, this was created to address the IPv4 exhaustion problem(IPv6 solves this issue but adoption is slower then expected), the way it works is that when a device wants to send data outside of the network the router will update the source IP to be the routers public facing IPv4 address, it will then update its NAT table to map the outbound connection to the internal private IP that intiated it, there are also different types of NAT such as
+</p>
+<ul>
+<li>**Port Address Translation**: The most common form of NAT for home users and SMBs. It rewrites both the source IP and assigns a unique source port for each connection. This allows many internal hosts to share a single public IP while avoiding collisions at the public IP/port level. PAT is also called NAT overload</li>
+<li>**Carrier Grade NAT**: carrier grade NAT is a form of nat where not only your home network all shares a single IPv4 but instead you share IPs with multiple other customers of your ISP, instead of the NAT/PAT process taking place at your router your data is first sent through to your ISPs network and then NAT/PAT takes place at their edge routers, this was created to help conserve public IPv4s even further</li>
+</details>
+```
+protocol = tcp	6	
+ID = 119473	
+State = ESTABLISHED	
+// internal -> external
+source address = 192.168.1.2	
+destination address = 35.190.43.134	
+source port = 63602	
+destination port = 443	
+// external -> internal 
+source address = 35.190.43.134	
+destination address = 61.xx.xx.xx
+source port = 443	
+destination port = 63602	
+```
+8. 
 
 
