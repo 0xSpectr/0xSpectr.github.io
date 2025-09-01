@@ -204,6 +204,11 @@ the gateway receives it and then does a series of steps, in order too route it t
 4. de encapsulates the Ethernet header to access the IP header
 5. validates the IP header checksum, drops if incorrect as it cant be trusted
 6. the router then consults its routing table to know what to do next
+the router will then use longest prefix routing, LPR is a method routers use to choose the more specific route incase multiple routes overlap with each other for example if we have
+route 1: 192.168.0.0/16
+route 2: 192.168.1.0/24
+the router will choose route 2 because its more specific, the reason for this.
+If there is no route that matchs it will use the default route(0.0.0.0 - matchs all destination IPs), if there is no default route it drops the packet
 <details>
 <summary>Routing table?</summary>
 <p>
@@ -217,11 +222,7 @@ routing tables are an in memory(usually) mapping, it defines where data should b
 <li>interface: the physical/logical interface to send the data out of</li>
 </ul>
 </details>
-the router will then use longest prefix routing, LPR is a method routers use to choose the more specific route incase multiple routes overlap with each other for example if we have
-route 1: 192.168.0.0/16
-route 2: 192.168.1.0/24
-the router will choose route 2 because its more specific, the reason for this.
-If there is no route that matchs it will use the default route(0.0.0.0 - matchs all destination IPs), if there is no default route it drops the packet
+
 7. since this is a internet gateway and the data needs to be routed outside of the network NAT takes place, the router will update the source IP to be its public IPv4(and update the source port to something unique if PAT is in use) and create a mapping inside its NAT table, for example heres a mapping from my routers dashboard
 
 <details>
@@ -233,6 +234,7 @@ Network address translation is a method used to allow multiple devices inside a 
 <li>**Port Address Translation**: The most common form of NAT for home users and SMBs. It rewrites both the source IP and assigns a unique source port for each connection. This allows many internal hosts to share a single public IP while avoiding collisions at the public IP/port level. PAT is also called NAT overload</li>
 <li>**Carrier Grade NAT**: carrier grade NAT is a form of nat where not only your home network all shares a single IPv4 but instead you share IPs with multiple other customers of your ISP, instead of the NAT/PAT process taking place at your router your data is first sent through to your ISPs network and then NAT/PAT takes place at their edge routers, this was created to help conserve public IPv4s even further</li>
 </details>
+
 ```
 protocol = tcp	6	
 ID = 119473	
@@ -248,6 +250,6 @@ destination address = 61.xx.xx.xx
 source port = 443	
 destination port = 63602	
 ```
-8. 
+
 
 
