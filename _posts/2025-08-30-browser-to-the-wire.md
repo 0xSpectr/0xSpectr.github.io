@@ -219,7 +219,7 @@ routing tables are an in memory(usually) mapping, it defines where data should b
 </ul>
 </details>
 
-7. since this is a internet gateway and the data needs to be routed outside of the network NAT takes place, the router will update the source IP to be its public IPv4(and update the source port to something unique if PAT is in use) and create a mapping inside its NAT table, for example heres a mapping from my routers dashboard
+7. since the data needs to be routed outside of the network NAT takes place, the router will update the source IP to be its public IPv4(and update the source port to something unique if PAT is in use) and create a mapping inside its NAT table, for example heres a mapping from my routers dashboard
 
 <details>
 <summary>NAT?</summary>
@@ -248,5 +248,20 @@ source port = 443
 destination port = 63602	
 ```
 
+8. next the router will update the TTL(TTL is a 1-byte field in the IP header that gets decremented by 1 each hop, if its hits 0 the packet is dropped, its used to help stop routing loops) in the IP header to be current TTL - 1, if its 0 after decrementing the router will drop and potentially send back a icmp "Time Exceeded" message
+9. the router will then recalculate the IP header checksum and encapsulate the packet into an ethernet frame
+10. it will then update the source MAC to be its own MAC and the destination to be the next hop(learned via the routing table and ARP)
 
+this process repeats(apart from NAT process) for each hop across my ISPs network, potentially passed off to other ISPs until it reaches the destination 
+once the data reaches the webserver the process happens in reverse, the webserver de encapsulates the packet to be able to retrieve the application data(our GET request), it will then parse the request, retrieve the request resource and then encapsulate back into an ethernet frame through the process above
+the data is then routed across the internet until it hits your router
 
+now the NAT process happens in reverse 
+1. the router will validate source IP and source port match the NAT mapping(if port restricted cone NAT), it then looks at the internal private IP and port inside rhe mapping
+2. it then updates the destination IP to our private IP and destination port to be our internal port
+3. the data is then forwarded over whatever medium(etherner, wifi etc) and our device receives it
+4. our device then de encapsulates it, grabs the application payload 
+5. our browser then renders the page, runs the JS and potentially sends even more GET request if other files are needed such as css, images etc
+
+# Outro
+I hope you enjoyed my first blog post and maybe learned something new about what happens when you press Enter. The journey from your browser to the server involves many layers of protocols, security checks, and routing decisions, and this post only scratches the surface. I’d love to hear your thoughts, corrections, or questions.
