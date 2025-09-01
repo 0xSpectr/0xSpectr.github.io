@@ -211,11 +211,11 @@ the gateway receives it and then does a series of steps, in order too route it t
 routing tables are an in memory(usually) mapping, it defines where data should be sent next using the IP and subnet, usually house hold routers will just have static routing tables but enterprise routers inside ISPs and other large networks have dynamic tables and use interior gateway protocols such as OSPF, EIGRP, IS-IS to handle dynamically updating them. routing tables usually consist of multiple entrys and each entry has stuff such as:
 </p>
 <ul>
-<il>destination: IP address to match.</li>
-<il>gateway: the next hop IP address to forward the data too, typically 0.0.0.0 means the destination is directly connected</li>
-<il>subnet mask: defines the range of IPs the route matchs</li>
-<il>metric: a cost value used by routers to pick a route, if multiple routes match it will choose the one with the least cost</li>
-<il>interface: the physical/logical interface to send the data out of</li>
+<li>destination: IP address to match.</li>
+<li>gateway: the next hop IP address to forward the data too, typically 0.0.0.0 means the destination is directly connected</li>
+<li>subnet mask: defines the range of IPs the route matchs</li>
+<li>metric: a cost value used by routers to pick a route, if multiple routes match it will choose the one with the least cost</li>
+<li>interface: the physical/logical interface to send the data out of</li>
 </ul>
 </details>
 
