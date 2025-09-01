@@ -203,23 +203,19 @@ the gateway receives it and then does a series of steps, in order too route it t
 3. it then checks to see if the destination MAC is its own MAC, broadcast MAC or a multicast MAC, drops if not
 4. de encapsulates the Ethernet header to access the IP header
 5. validates the IP header checksum, drops if incorrect as it cant be trusted
-6. the router then consults its routing table to know what to do next
-the router will then use longest prefix routing, LPR is a method routers use to choose the more specific route incase multiple routes overlap with each other for example if we have
-route 1: 192.168.0.0/16
-route 2: 192.168.1.0/24
-the router will choose route 2 because its more specific, the reason for this.
-If there is no route that matchs it will use the default route(0.0.0.0 - matchs all destination IPs), if there is no default route it drops the packet
+6. the router then consults its routing table to know what to do next, if it finds no valid route and their isnt a default route it will drop the packet
+
 <details>
 <summary>Routing table?</summary>
 <p>
 routing tables are an in memory(usually) mapping, it defines where data should be sent next using the IP and subnet, usually house hold routers will just have static routing tables but enterprise routers inside ISPs and other large networks have dynamic tables and use interior gateway protocols such as OSPF, EIGRP, IS-IS to handle dynamically updating them. routing tables usually consist of multiple entrys and each entry has stuff such as:
 </p>
 <ul>
-<li>destination: IP address to match.</li>
-<li>gateway: the next hop IP address to forward the data too, typically 0.0.0.0 means the destination is directly connected</li>
-<li>subnet mask: defines the range of IPs the route matchs</li>
-<li>metric: a cost value used by routers to pick a route, if multiple routes match it will choose the one with the least cost</li>
-<li>interface: the physical/logical interface to send the data out of</li>
+1. destination: IP address to match.</li>
+2. gateway: the next hop IP address to forward the data too, typically 0.0.0.0 means the destination is directly connected</li>
+3. subnet mask: defines the range of IPs the route matchs</li>
+4. metric: a cost value used by routers to pick a route, if multiple routes match it will choose the one with the least cost</li>
+5. interface: the physical/logical interface to send the data out of</li>
 </ul>
 </details>
 
