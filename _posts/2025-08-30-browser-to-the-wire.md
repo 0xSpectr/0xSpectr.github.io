@@ -211,11 +211,11 @@ the gateway receives it and then does a series of steps, in order too route it t
 routing tables are an in memory(usually) mapping, it defines where data should be sent next using the IP and subnet, usually house hold routers will just have static routing tables but enterprise routers inside ISPs and other large networks have dynamic tables and use interior gateway protocols such as OSPF, EIGRP, IS-IS to handle dynamically updating them. routing tables usually consist of multiple entrys and each entry has stuff such as:
 </p>
 <ul>
-1. destination: IP address to match.</li>
-2. gateway: the next hop IP address to forward the data too, typically 0.0.0.0 means the destination is directly connected</li>
-3. subnet mask: defines the range of IPs the route matchs</li>
-4. metric: a cost value used by routers to pick a route, if multiple routes match it will choose the one with the least cost</li>
-5. interface: the physical/logical interface to send the data out of</li>
+<il>destination: IP address to match.</li>
+<il>gateway: the next hop IP address to forward the data too, typically 0.0.0.0 means the destination is directly connected</li>
+<il>subnet mask: defines the range of IPs the route matchs</li>
+<il>metric: a cost value used by routers to pick a route, if multiple routes match it will choose the one with the least cost</li>
+<il>interface: the physical/logical interface to send the data out of</li>
 </ul>
 </details>
 
@@ -229,6 +229,7 @@ Network address translation is a method used to allow multiple devices inside a 
 <ul>
 <li>**Port Address Translation**: The most common form of NAT for home users and SMBs. It rewrites both the source IP and assigns a unique source port for each connection. This allows many internal hosts to share a single public IP while avoiding collisions at the public IP/port level. PAT is also called NAT overload</li>
 <li>**Carrier Grade NAT**: carrier grade NAT is a form of nat where not only your home network all shares a single IPv4 but instead you share IPs with multiple other customers of your ISP, instead of the NAT/PAT process taking place at your router your data is first sent through to your ISPs network and then NAT/PAT takes place at their edge routers, this was created to help conserve public IPv4s even further</li>
+</ul>
 </details>
 
 ```
