@@ -1,13 +1,13 @@
 ---
 layout: post
 title: "AdaptixC2 windows defender bypass"
-date: 2025-08-30
+date: 2025-09-03
 categories:
   - malware
   - cybersec
 ---
 
-#Disclaimer
+# Disclaimer
 This post is for educational and research purposes only. The techniques described are intended to help readers understand how malware and command-and-control systems work, so they can better defend against them. Do not use this information for illegal activities. I take no responsibility for misuse
 
 
