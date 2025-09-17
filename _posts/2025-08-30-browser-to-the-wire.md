@@ -22,8 +22,8 @@ overview
 
 
 # DNS Process
-domain name resolution is a widely used protocol, its main goal is to convert human readable domain names like "facebook.com" into IP addresses
-this way instead of trying to remember "23.24.25.36" we can simply remember "facebook.com"
+Domain name resolution protocol is a widely used protocol, its main goal is to convert human readable domains like "Facebook.com" into IP addresses
+this way instead of trying to remember "23.24.25.36" we can simply remember "Facebook.com"
 DNS runs over port 53/udp but can use TCP mainly for 
 - Zone transfer(copying records between dns servers)   
 - when the response is to large to fit into a single UDP packet
@@ -39,15 +39,16 @@ DNS is also used for much more then just storing servers IPs its also stores oth
 - MX(holds the host names of mailservers) 
 - PTR(used for reverse DNS lookups, stores the domain name instead of IP)
 
+the General flow of  the resolution process is as follows.
 First we enter Facebook.com into a url bar
 our browser will now start the DNS process, which has 5 main steps
 
-1. First the browser checks the systems local host files, this is a file on disk(/etc/hosts on linux, C:\Windows\System32\Drivers\etc\hosts on windows), this file stores hardcoded domain to IP mappings, it takes precedence over all else, its commonly used inside LANs to allow for static entrys of server   
-2. Browsers Local cache, all browsers keep a cache of recetnly converted domain names, this way we dont need to intiate requests everytime we want to visit a website we commonly use   
-3. Systems Local Cache, our system also keeps a cache of recently converted domain names, it works the same as above   
-4. If the IP wasnt found in any of the above we now intiate the outbound DNS process, our system constructs a DNS packet and sends it the primary DNS server in our systems network configuration(Learned via DHCP or manually entered), ill use 8.8.8.8
+1. First the browser checks the systems local host files, this is a file on disk(/etc/hosts on linux, C:\Windows\System32\Drivers\etc\hosts on windows), this file stores hardcoded domain to IP mappings, it takes precedence over all else, its commonly used inside LANs to allow for static entrys of domain names.   
+2. Next it will check the browsers Local cache, all browsers keep a cache of recently converted domain names, this way we dont need to intiate requests everytime we want to visit a website we commonly use   
+3. If not found in the browser cache next we check the systems Local Cache, our system also keeps a cache of recently converted domain names, it works the same as above   
+4. If the IP wasnt found in any of the above we now intiate the outbound DNS process, our system constructs a DNS packet and sends it the primary DNS server in our systems network configuration(Learned via DHCP or manually entered).
 5. the DNS server receives this DNS request, this server is known as a recursive resolver, meaning it takes over and handles the rest of the resolution for us
-    - First the resolver reaches out to a root dns server, there are 13 of these servers(a.root-servers.net-m.root-servers.net) but they are split across thousands of nodes worldwide and use anycast routing(see CDN section for anycast explanation), root servers handle refering us to the correct TLD server that handle our domain(.com, .cloud etc)
+    - First the resolver reaches out to a root dns server, there are 13 of these servers(a.root-servers.net to m.root-servers.net) but they are distributed across thousands of nodes worldwide and use anycast routing(see CDN section for anycast explanation), root servers handle refering us to the correct TLD server that handle our domain(.com, .cloud etc)
     - the resolver then recevies the IP of the correct TLD server from our domain and then sends the DNS request to it, TLD servers handle looking up our domain and returning us a list of authoratative nameservers
     - finally the resolver receives the list of Authoritative nameservers, it then chooses one and sends the final DNS request to it, the Authoritative nameserver then handles returning us the value we need in most cases its the A record which stores the IPv4 address
 
@@ -81,7 +82,7 @@ Now that we have the IP of the server(or edge server whatever) we can start comm
 
 3. finally the client will send back a ACK packet, this final packet finalises the tcp handshake and the connection is now established 
 
-Do note that there are more tcp options such as fast open, window scaling etc i just didn't add them for brevity
+note that there are more tcp options such as fast open, window scaling etc i just didn't add them for brevity
 also not all these options are present in every handshake, but they are still very common and enabled on most machines
 during the process each side sets up their intial sequence numbers, sequence numbers are used by tcp for segment re ordering, packet loss detection, keeping track of data etc
 
@@ -114,10 +115,14 @@ Note:
    In TLS 1.3, the key exchange is included in the ServerHello, and the exact key generation method depends on the chosen cipher suite and TLS version. Modern browsers almost always use ephemeral ECDH for key exchange. TLS 1.3 also supports 0 RTT handshakes if the client has previously connected
 
 # HTTP & Encapsulation
-NOTE:
-   HTTP/3 uses QUIC, a modern transport protocol built on top of UDP instead of TCP like previous HTTP versions, QUIC provides the reliability and congestion control of TCP but without some of the overhead. It also includes built-in TLS, supports 0-RTT handshakes, enables better multiplexing through individual streams, and solves the head-of-line blocking issue that TCP can face.
+<details>
+<summary>NOTE: about HTTP/3</summary>
+<p>
+HTTP/3 uses QUIC, a modern transport protocol built on top of UDP instead of TCP like previous HTTP versions, QUIC provides the reliability and congestion control of TCP but without some of the overhead. It also includes built-in TLS, supports 0-RTT handshakes, enables better multiplexing through individual streams, and solves the head-of-line blocking issue that TCP can face.
    For simplicity, this blog focuses on HTTP/1.1–2, which uses TCP as its transport method.
    If you would like to read more about [QUIC](https://www.auvik.com/franklyit/blog/what-is-quic-protocol/)
+</p>
+</details>
 
 Now that the secure TLS connection is established, our browser can finally request resources from the server using HTTP (Hypertext Transfer Protocol). HTTP is a Layer 7 application protocol that powers the web. It allows us to request files, submit forms, manage sessions, and interact with web applications.
 HTTP uses methods to define the operaiton we would like to do to such as:
@@ -171,16 +176,17 @@ Now the encapsulation process takes place, the above was layer 7 application
 
 Before the network stack can add the next header(ethernet) it needs to know destination MAC address, it does this by  checking if the destination IP is in the local network or if it needs to be routed to the default gateway, it does this through an AND operation 
    - the AND operation works by taking the destination IP and subnet mask of the network and comparing the result against the LANs network IP for example
-        - subnet mask = 255.255.255.0, destination IP = 47.58.29.50
+        - subnet mask = 255.255.255.0
+        - destination IP = 47.58.29.50
         - we then do 255.255.255.0 AND 47.58.29.50 = 47.58.29.0
-        - this does NOT match the network ip(192.168.1.0) so we know we must forward the request to the default gateway
+        - this does NOT match the network IP(192.168.1.0) so we know we must forward the request to the default gateway
 
 After it knows whether its remote or local our system then uses ARP to find the MAC address of the next hop
 Address resolution protocol is a layer 2 protocol used internally inside a LAN to map IPs to MACs, its specifically for IPv4 as IPv6 uses neighbourhood discovery protocol.  
    - First it checks its ARP table, this is an in memory table that stores the recently mapped IPs to MACs, each entry has a TTL(platform dependent, windows is 2 minutes) so it constanly has to be refreshed and updated(unless we create static entrys)
-   - if the MAC address is not found we then send a broadcast(destination mac: FF:FF:FF:FF:FF:FF) ARP message to the network asking "Who is 192.168.1.1"
+   - if the MAC address is not found we then send a broadcast(destination mac: FF:FF:FF:FF:FF:FF) ARP message to the network asking "Who is 192.168.1.1?"
    - All devices on the network recevie this but all of them drop it apart from the host with the specifed IP, this device then replies back "192.168.1.1 is at aa:bb:cc:dd:ee:ff"
-   - the original sender recevies this and adds the entry into their ARP table for future use
+   - the original sender receives this and adds the entry into their ARP table for future use
 
 4. Next its passed down to the Data link layer, this layer handles the Hop-by-hop of data, basic corruption checks etc, here the IP packet is encapsulated into a ethernet frame and a etherner header is added whjch includes:
     - source MAC(Our MAC address)
