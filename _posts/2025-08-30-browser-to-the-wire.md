@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "From the Browser To The Wire: What happens when you press enter"
-date: 2025-08-30
+date: 2025-10-23
 categories:
   - networking
   - cybersec
